@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jlm.mapper.ProductMapper">
+
+    <select id="selectByKey" resultType="com.jlm.entity.Product">
+        select p.*,c.cname
+        from product p
+        left join category c on c.cid = p.pcid
+        <if test="key!=null and key!= ''">
+            <bind name="keyword" value="'%'+key+'%'"/>
+            where concat(pname,cname) like #{keyword}
+        </if>
+        ORDER BY pdate desc
+    </select>
+    <select id="selectPandCById" resultType="com.jlm.entity.Product">
+        select p.*,c.cname
+        from product p
+        left join category c on c.cid = p.pcid
+        where p.pid=#{pid}
+    </select>
+</mapper>

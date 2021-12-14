@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>主区域</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+		<script language="javascript" src="js/jquery.js"></script>
+		<script language="javascript" src="js/script.js"></script>
+		<script>
+			//可重复利用的
+			function forEachAdd(result) {
+				for (var i=0;i<result.records.length;i++){
+					var item = result.records[i];
+					var uImg=item.uimg;
+					var uImgPath='../uploadImg/'+uImg;
+					var tr = $('<tr></tr>');
+					tr.append($('<td>'+item.uid+'</td>'));
+					tr.append($('<td><img class="uImg" onerror="this.onerror=\'\';this.src=\'../img/null.png\'" src="'+uImgPath+'"/></td>'));
+					tr.append($('<td>'+item.uname+'</td>'));
+					tr.append($('<td>'+item.banned+'</td>'));
+					var tditem = $('<td class="opt"></td>');
+					tditem.append($(' <button onclick="toBanned('+item.uid+')"   type="button">封禁</button>'));
+					tditem.append($(' <button onclick="notBanned('+item.uid+')"   type="button">解封</button>'));
+					tditem.append($(' <button onclick="deleteUser(this,'+item.uid+')" type="button">删除</button>'));
+					tr.append(tditem);
+					$('#tbody').append(tr);
+				}
+				// 分页数据显示
+				$('#page_nav').append(getPageUl(result));
+			}
+			//使用Ajax获取user数据
+			var key=$('#keyword').val()
+			$.post('/admin/queryUser', {'key':key}, function (result) {
+				console.log("result"+result);
+				forEachAdd(result);
+			});
+			//跳转页面的操作
+			function jumpPage(page) {//分页模型数据
+				$.post('/admin/queryUser', {'pn':page,'key':key}, function (result) {
+					$('#tbody').empty(); $('#page_nav').empty();
+					console.log(result);
+					forEachAdd(result);
+				});
+			}
+			//搜索
+			function getSearchRes(){
+				key=$('#keyword').val()
+				$.post('/admin/queryUser', {'key':key}, function (result) {
+					$('#tbody').empty(); $('#page_nav').empty();
+					console.log(result);
+					forEachAdd(result);
+				});
+			}
+			//定义获取分页节点的函数
+			function getPageUl(result){
+				var ulitem = $('<ul class="pagination"></ul>');
+				ulitem.append($(' <li class="page-item">' +
+						'             当前页码：'+result.pageInfo.pageNum+'【共'+result.pageInfo.total+'条记录，'+result.pageInfo.pages+'页】' +
+						'            </li>'));
+				ulitem.append($('<li class="page-item"><a class="page-link"\n' +
+						'                                         href="javascript:jumpPage(1)">首页</a></li>'));
+				if(result.pageInfo.hasPreviousPage){
+					ulitem.append($('<li class="page-item"><a class="page-link" href="javascript:jumpPage('+(result.pageInfo.prePage)+')">上一页</a> </li>'));
+				}
+				ulitem.append($('<li className="page-item"><a className="page-link" href="javascript:jumpPage('+result.pageInfo.pageNum+')">'+result.pageInfo.pageNum+'</a>\n' +
+						'            </li>'));
+				if(result.pageInfo.hasNextPage){
+					ulitem.append($('<li class="page-item"><a class="page-link" href="javascript:jumpPage('+(result.pageInfo.nextPage)+')">下一页</a> </li>'));
+				}
+				ulitem.append($('<li className="page-item"><a className="page-link"' +
+						'                                         href="javascript:jumpPage('+result.pageInfo.pages+')">尾页</a>' +
+						'            </li>'));
+				//返回节点
+				return ulitem;
+			}
+
+
+			//封禁
+			function toBanned(uid) {
+				var duration=prompt('封禁时长(天)');
+				if (duration){
+					$.post('/admin/bannedById',{"id":uid,"time":duration},function (result) {
+						if (result==true){
+							alert('封禁成功')
+							location.reload();
+						}else {
+							alert('封禁失败')
+						}
+					})
+				}
+			}
+			//解封
+			function notBanned(uid) {
+				$.post('/admin/unbannedById',{"id":uid},function (result) {
+					if (result==true){
+						alert('解封成功')
+						location.reload();
+					}else {
+						alert('解封失败')
+					}
+				})
+			}
+			//删除的操作
+			function deleteUser(tritem,uid) {//入参跳转的页码
+				function del() {
+					var msg = "确定要删除吗？";
+					if (confirm(msg) == true) {
+						return true;
+					} else {
+						return false;
+					}
+				}
+				if (del()){
+					$.post('/admin/deleteUser', {"id":uid}, function (result) {
+						if (result == true) {
+							alert('删除成功');
+							$('#tbody').remove(tritem.parentNode.parentNode);
+							location.reload();
+						} else {
+							alert('删除失败，请重新操作');
+						}
+					});
+					// 删除当前tr节点
+					tritem.parentNode.parentNode.remove();
+				}
+
+			}
+		</script>
+	</head>
+	<body id="frmain">
+		<div id="main">
+			<div class="title">
+				<h2><span>当前位置：</span><label>[新闻中心]信息列表</label></h2>
+			</div>
+			<ul class="optlist">
+				<li class="addopt"><a href="#">添加</a></li>
+			</ul>
+			<div id="search">
+				<form action="#" method="get" >
+					<p><label>关键字:</label><input type="text" name="key" class="ltxt" placeholder="id，帐号，用户名均可" value="" id="keyword" /></p>
+					<input type="button" onclick="getSearchRes()" name="" value="搜索" class="searchbt" />
+				</form>
+			</div>
+
+			<form name="form2" id="form2" method="post" action="">
+				<table cellspacing="0" class="tblist">
+					<thead>
+					<tr>
+						<th scope="col">ID</th>
+						<th scope="col">头像</th>
+						<th scope="col">帐号</th>
+						<th scope="col">状态(0正常，1封禁)</th>
+						<th scope="col">操作</th>
+					</tr>
+					</thead>
+
+					<tbody id="tbody">
+
+					</tbody>
+
+				</table>
+
+			</form>
+			<div class="pagenav">
+				<nav aria-label="Page navigation example" id="page_nav"
+					 style="margin-left: 330px;">
+
+				</nav>
+			</div>
+
+		</div>
+
+	</body>
+
+</html>
+	

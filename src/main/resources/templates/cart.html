@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>购物车--饥了么</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css"/>
+		<script src="js/jquery-3.3.1.min.js"></script>
+		<script>
+			$(function () {
+				$("header").load("header.html");
+			})
+			$.post('/cart/queryByUid',{},function (result) {
+				for (var i=0;i<result.length;i++){
+					var item = result[i];
+					var tr=$('<tr class="cart-item"></tr>')
+					tr.append('<td><input type="checkbox" name="checkbox" id="" value="'+item.id+'" class="j-checkbox"/>' +
+							'<input type="hidden" name="uid" id="" value="'+item.uid+'" class="uid"/></td>')
+					tr.append('<td><img src="/staticfile/product/'+item.ppic+'"/></td>')
+					tr.append('<td>'+item.pname+'</td>')
+					tr.append('<td>' +
+							'<div class="numopt">' +
+							'<input class="numlbt decrement" type="button" name="" id="" value="-" />' +
+							'<input class="num itxt" type="text" name="" id="" value="'+item.num+'" />' +
+							'<input class="numrbt increment" type="button" name="" id="" value="+" />' +
+							'</div>' +
+							'</td>')
+					tr.append('<td class="p-price">￥'+item.pprice+'</td>')
+					var total=item.pprice*item.num;
+					tr.append('<td class="p-sum">￥'+total.toFixed(2)+'</td>')
+					tr.append('<td><a href="#" onclick="deleteOne('+item.id+')">删除</a></td>')
+					$('#tbody').append(tr);
+				}
+			})
+
+			//删除
+			function deleteOne(id) {
+				$('input[name="checkbox"][value='+id+']').attr("checked",true);
+				deletes();
+			}
+
+			function deletes() {
+				var chk_val=[];
+				$('input[name="checkbox"]:checked').each(function () {
+					chk_val.push($(this).val())
+				})
+				if (chk_val.length!=0){
+					$.post('/cart/deleteByIds',{"ids":JSON.stringify(chk_val)},function (result) {
+							if (result==true){
+								alert("删除成功")
+								location.reload();
+							}else {
+								alert("删除失败")
+							}
+					})
+				}else {
+					alert("请至少选中一项")
+				}
+
+			}
+
+			//更新购物车内容
+			function updateCart() {
+				let html=$(document).find('#tbody tr');
+				let data=getTableData(html);
+				$.post('/cart/update',{"cart":JSON.stringify(data)},function (result) {
+					if (result==true){
+						alert("保存新记录到数据库成功")
+					}else {
+						alert("更新失败")
+					}
+				})
+			}
+
+			//获取表单数据
+			function getTableData(tableHtml) {
+				let result = [];
+				if (tableHtml) {
+					let length = tableHtml.length;
+					for(let i = 0; i < length; i++) {   //追加数据
+						let trData = {}; // 每行的数据
+
+						let id = $(tableHtml).eq(i).find('.j-checkbox').val();
+						let num = $(tableHtml).eq(i).find('.num').val();
+						let uid =$(tableHtml).eq(i).find('.uid').val()
+
+						//数据赋值
+						trData.id = id;
+						trData.num = num;
+						trData.uid=uid;
+
+						result.push(trData);    //数据追加
+					}
+				}
+				return result;
+			}
+
+		</script>
+		<script src="js/cart.js"></script>
+	</head>
+	<body>
+		<header>
+		</header>
+		<div class="layout">
+			<div id="cart">
+				<table>
+					<caption>购物车详细</caption>
+					<thead>
+						<tr>
+							<th><input type="checkbox" name="" id="" value="" class="checkall"/></th>
+							<th>商品</th>
+							<th>名称</th>
+							<th>数量</th>
+							<th>单价</th>
+							<th>小结</th>
+							<th>操作</th>
+						</tr>
+					</thead>
+					<tbody id="tbody">
+
+					</tbody>
+					<tfoot>
+						<tr>
+							<td>支付方式：</td>
+							<td colspan="6" >
+								<p>
+									<label><input type="radio" name="payway" checked="checked" id="" value=""/>中国银联</label>
+									<label><input type="radio" name="payway" id="" value=""/>支付宝</label>
+									<label><input type="radio" name="payway" id="" value=""/>微信</label>
+									<label><input type="radio" name="payway" id="" value=""/>QQ钱包</label>
+								</p>
+								
+							</td>
+						</tr>
+						<tr>
+							<td><a onclick="deletes()" href="#">删除</a></td>
+							<td colspan="6" class="fopt">
+								总金额：<em>￥0.00</em>
+								<input class="getNew" onclick="updateCart()"  type="button" name="" id="" value="更新" />
+								<input class="orderbt" type="submit" name="" id="" value="结算" />
+							</td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
+		</div>
+		<footer>
+			<h3>本站支持以下支付方式</h3>
+			<div class="layout">
+				<div class="payway">
+					<ul>
+						<li>
+							<h4>中国银联</h4>
+							<img src="img/PayWay1.jpg" />
+						</li>
+						<li>
+							<h4>支付宝</h4>
+							<img src="img/PayWay2.jpg" />
+						</li>
+						<li>
+							<h4>微信</h4>
+							<img src="img/PayWay3.jpg" />
+						</li>
+						<li>
+							<h4>QQ钱包</h4>
+							<img src="img/PayWay4.jpg" />
+						</li>
+					</ul>
+				</div>
+				
+			</div>
+		</footer>
+	</body>
+</html>

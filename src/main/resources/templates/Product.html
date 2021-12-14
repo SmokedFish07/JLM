@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>商品详情--饥了么</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css"/>
+		<link rel="shortcut icon" href="#" />
+		<script src="js/jquery-3.3.1.min.js"></script>
+		<script src="js/cart.js"></script>
+		<script>
+			//重复部分
+			function forEachAdd(result) {
+				for (var i=0;i<result.records.length;i++){
+					var item=result.records[i];
+					var li=$('<li></li>');
+					li.append('<div class="micon"><img src="uploadImg/'+item.uimg+'" /></div>')
+					var mDiv=$('<div class="mcont"></div>')
+					mDiv.append('<h5><span><strong>'+item.uname+'</strong></span><label>'+item.mdate.substr(0,10)+'</label></h5>')
+					mDiv.append('<div class="mcontent">'+item.mcontent+'</div>')
+					li.append(mDiv);
+					$('#mlist').append(li)
+				}
+				// 分页数据显示
+				$('#page_nav').append(getPageUl(result));
+			}
+
+
+			var url =decodeURI(decodeURI(location.search));
+			var pid=url.substr(5);
+			$(function(){
+				/*公共部分
+                 * 导航栏
+                 * footer CopyRight
+                 */
+				$("header").load("header.html");
+				$("footer").load("footer.html");
+
+
+				$.post('/product/queryById',{"pid":pid},function (result) {
+					if (result.isok=true){
+						var product=result.product;
+						$('#pInf').append('<p>名称：'+product.pname+'</p>');
+						$('#pInf').append('<p>商家：'+product.cname+'</p>');
+						$('#pInf').append('<p>货号：'+product.pid+'</p>');
+						$('#pInf').append('<p>单价：<span>￥'+product.pprice+'</span></p>');
+						$('.picon').append('<img src="staticfile/product/'+product.ppic+'" />')
+						$('#pcontent').append(product.pcontent);
+						getCInf(product.pcid);
+					}
+				});
+			});
+			//获取留言
+			$.post('/message/queryByPid',{"pid":pid},function (result) {
+				forEachAdd(result);
+			})
+			//跳转页面的操作
+			function jumpPage(page) {//分页模型数据
+				$.post('/message/queryByPid', {"pid":pid,'pn':page}, function (result) {
+					$('#page_nav').empty();
+					$('#mlist').empty();
+					forEachAdd(result);
+				});
+			}
+			//定义获取分页节点的函数
+			function getPageUl(result){
+				var ulitem = $('<ul class="pagination"></ul>');
+				ulitem.append($('<li class="page-item"><a class="page-link"\n' +
+						'                                         href="javascript:jumpPage(1)">首页</a></li>'));
+				if(result.pageInfo.hasPreviousPage){
+					ulitem.append($('<li class="page-item"><a class="page-link" href="javascript:jumpPage('+(result.pageInfo.prePage)+')">上一页</a> </li>'));
+				}
+				ulitem.append($('<li className="page-item"><a className="page-link" href="javascript:jumpPage('+result.pageInfo.pageNum+')">'+result.pageInfo.pageNum+'</a>\n' +
+						'            </li>'));
+				if(result.pageInfo.hasNextPage){
+					ulitem.append($('<li class="page-item"><a class="page-link" href="javascript:jumpPage('+(result.pageInfo.nextPage)+')">下一页</a> </li>'));
+				}
+				ulitem.append($('<li className="page-item"><a className="page-link"' +
+						'                                         href="javascript:jumpPage('+result.pageInfo.pages+')">尾页</a>' +
+						'            </li>'));
+				//返回节点
+				return ulitem;
+			}
+
+
+			//获取商家信息
+			function getCInf(cid) {
+				$.post('/category/queryById',{"cid":cid},function (result) {
+					if (result.isok==true){
+						var cInf=result.category;
+						$('.icon').append('<img src="staticfile/category/'+cInf.clogo+'" />')
+						$('.imformation').append('<h4>'+cInf.cname+'</h4>')
+						$('.imformation').append('<p>已上架：'+cInf.sold+'</p>')
+						$('.imformation').append('<p>店铺等级:10</p>')
+						$('.imformation').append('<p>店铺首页：<a href="#">点此进入</a></p>')
+					}
+				})
+			}
+			//添加留言
+			function sendMessage() {
+				// var pid=url.substr(5);
+				var message= $('#mcontent').val()
+				$.post('/message/add',{"pid":pid,"message":message},function (result) {
+					if (result){
+						alert("发送成功")
+					}else {
+						alert("发送失败,请先登录")
+						location.href="login.html";
+					}
+				})
+			}
+			//添加到购物车
+			function toCart() {
+				var num=$('#num').val();
+				$.post('/cart/add',{"pid":pid,"num":num},function (result) {
+					if (result==true){
+						alert("添加成功")
+					}else {
+						alert("添加失败,请先登录")
+						location.href="login.html";
+					}
+				})
+			}
+		</script>
+	</head>
+	<body>
+		<header>
+		</header>
+		<div class="layout">
+			<div class="content">
+				<div class="curpostion">
+					<a href="index.html">首页</a><span>&gt;</span><a href="ProductList.html">在线下单</a><span>&gt;</span>商品详情
+				</div>
+				<div class="pcontent">
+					<div class="pword">
+						<div id="pInf">
+
+						</div>
+						<p id="numb">数量：<div class="numopt">
+										<input class="numlbt decrement" type="button" name="" id="" value="&lt;" />
+										<input class="num itxt" type="text" name="" id="num" value="1" />
+										<input class="numrbt increment" type="button" name="" id="" value="&gt;" />
+									</div>
+						</p>
+						<p>
+							<input class="bt" type="submit" name="" id="" value="立即购买" />
+							<input class="bt bt2" type="button" onclick="toCart()" name="" id="" value="添加至购物车" />
+						</p>
+					</div>
+					<div class="picon">
+
+					</div>
+				</div>
+				<h4 class="ptitle">商品介绍</h4>
+				<div id="pcontent" style="min-height: 100px">
+
+				</div>
+				<div id="messageform">
+					<h4 class="ptitle">留言</h4>
+					<form action="" method="">
+						<p>
+							<label for="mcontent">内容：</label><textarea id="mcontent" rows="" cols=""></textarea>
+						</p>
+<!--						<p><label>验证码：</label><input class="stxt" type="" name="" id="" value="" /><img src="img/checkno.jpg" ></p>-->
+						<p>
+							<input class="bt" type="button" onclick="sendMessage()" name="" id="" value="提交" />
+						</p>
+					</form>
+				</div>
+				<h4 class="ptitle pt2">留言列表</h4>
+				<div id="messagelist">
+					<ul id="mlist">
+
+					</ul>
+					<div class="pagenav">
+						<nav aria-label="Page navigation example" id="page_nav"
+							 style="margin-left: 330px;">
+
+						</nav>
+					</div>
+				</div>
+			</div>
+				
+				
+			<div class="sidebar">
+				<h3>店家信息</h3>
+				<div class="StoreInformation">
+					<div class="icon">
+						
+					</div>
+					<div class="imformation">
+
+					</div>
+				</div>
+				<h3>猜你喜欢</h3>
+				<ul>
+					<li>你什么都不喜欢</li>
+				</ul>
+			</div>
+		</div>
+		<footer>
+		</footer>
+	</body>
+</html>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jlm.mapper.CategoryMapper">
+
+    <select id="selectByKey" resultType="com.jlm.entity.Category">
+        select * from category
+        <if test="key!=null and key!= ''">
+            <bind name="keyword" value="'%'+key+'%'"/>
+            where cname like #{keyword}
+        </if>
+    </select>
+</mapper>

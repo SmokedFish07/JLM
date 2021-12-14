@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>注册--饥了么</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css"/>
+		<script src="js/jquery-3.3.1.min.js">
+		</script>
+		<script src="js/snow.js">
+		</script>
+	</head>
+	<body>
+		<header>
+
+		</header>
+		<div id="userform">
+			<div class="layout">
+				<div class="userlogin">
+					<h2><a href="login.html">登陆</a><span>|</span>注册</h2>
+					<form action="" method="post" id="insertUser">
+						<p><input type="text" name="uname" id="" value=""  class="uname txtinfo" placeholder="请输入用户名" /></p>
+						<p><input type="password" name="upwd" id="upwd" class="password txtinfo" placeholder="请输入密码" /></p>
+						<p><input type="password" name="repwd" id="repwd" class="password txtinfo" placeholder="确认密码" /></p>
+						<p><input type="text" name="uemail" id="" class="uemail txtinfo" placeholder="请输入Email" /></p>
+						<p><input type="checkbox" name="" id="" value="" class="cbbox" checked="checked"/>同意<a id="jlmXY" href="#">《饥了么注册协议》</a></p>
+						<div style="text-align: center; color: #aaaaff; display: none;" class="erroMessage">
+							密码不一致！
+						</div>
+						<p>已有帐号,请<a href="login.html">登陆</a><input type="button" onclick="submitInsertUser()" class="bt" value="注册" /></p>
+					</form>
+				</div>
+			</div>
+		</div>
+		
+		<footer>
+
+
+		</footer>
+		
+		<script>
+			$(function(){
+				/*公共部分
+                 * 导航栏
+                 * footer CopyRight
+                 */
+				$("header").load("header.html");
+				$("footer").load("footer.html");
+			});
+
+			function hidden(){
+				$(".erroMessage").css("display","none");
+			}
+			function waring() {
+				$(".bt").click(function(){
+					$(".erroMessage").css("display","block")
+					setTimeout("hidden()",3000)
+				})
+			}
+			function submitInsertUser() {
+				var upwd = document.getElementById("upwd").value;
+				var repwd=document.getElementById("repwd").value;
+				var oData = new FormData(document.getElementById("insertUser"));
+				if (upwd!=repwd){
+					alert("密码不一致")
+					// console.log("false"+upwd,repwd)
+				}else {
+					// console.log("success"+upwd,repwd)
+					$.ajax({
+						url: "/insertUser",//后台的接口地址
+						type: "post",//post请求方式
+						data: oData,//参数
+						cache: false,
+						processData: false,
+						contentType: false,
+						success: function (result) {
+							if (result.isok == true) {
+								alert('注册成功');
+							} else {
+								alert('注册失败');
+							}
+						}, error: function () {
+							alert("操作失败~");
+						}
+					})
+				}
+			};
+
+		</script>
+	</body>
+	
+</html>

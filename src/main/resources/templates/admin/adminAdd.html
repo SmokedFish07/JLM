@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>添加管理员</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css" />
+		<script language="javascript" type="text/javascript" src="js/validator.js"></script>
+		<script language="javascript" type="text/javascript" src="js/utils.js"></script>
+		<script language="javascript" src="js/jquery.js"></script>
+		<script>
+			$(function () {
+				var url =decodeURI(decodeURI(location.search));
+				var str=url.substr(1);
+				if(url!=null&&url!=''){
+					var data=str.split(",");
+					$('#aid').val(data[0])
+					$('#aname').val(data[2])
+					$('#owner').val(data[1])
+					$('#apwd').val(data[3])
+					$('#toFunction').removeAttr("onclick");
+					$('#toFunction').attr('onclick','updateAdmin()')
+				}
+			})
+			function updateAdmin() {
+				var apwd = document.getElementById("apwd").value;
+				var repwd=document.getElementById("repwd").value;
+				var oData = new FormData(document.getElementById("addAdmin"));
+				if(oData.get("aname")==null||oData.get("aname")==''){
+					alert("帐号不能为空")
+					return;
+				}
+				if(oData.get("apwd")==null||oData.get("apwd")==''){
+					alert("密码不能为空")
+					return;
+				}
+				if (apwd!=repwd){
+					alert("密码不一致")
+				}else {
+					$.ajax({
+						url: "/admin/updateAdmin",//后台的接口地址
+						type: "post",//post请求方式
+						data: oData,//参数
+						cache: false,
+						processData: false,
+						contentType: false,
+						success: function (result) {
+							if (result.isok == true) {
+								alert('修改成功');
+								location.href="adminList.html"
+							} else {
+								alert(result.message);
+							}
+						}, error: function () {
+							alert("操作失败~");
+						}
+					});
+				}
+			}
+			function addAdmin() {
+				var apwd = document.getElementById("apwd").value;
+				var repwd=document.getElementById("repwd").value;
+				var oData = new FormData(document.getElementById("addAdmin"));
+				if(oData.get("aname")==null||oData.get("aname")==''){
+					alert("帐号不能为空")
+					return;
+				}
+				if(oData.get("apwd")==null||oData.get("apwd")==''){
+					alert("密码不能为空")
+					return;
+				}
+				if (apwd!=repwd){
+					alert("密码不一致")
+					// console.log("false"+upwd,repwd)
+				}else {
+					// console.log("success"+upwd,repwd)
+					$.ajax({
+						url: "/admin/addAdmin",//后台的接口地址
+						type: "post",//post请求方式
+						data: oData,//参数
+						cache: false,
+						processData: false,
+						contentType: false,
+						success: function (result) {
+							if (result.isok == true) {
+								alert('添加成功');
+							} else {
+								alert('添加失败');
+							}
+						}, error: function () {
+							alert("操作失败~");
+						}
+					})
+				}
+			};
+		</script>
+	</head>
+
+	<body id="frmain">
+		<div id="main">
+			<div class="title">
+				<h2><span>当前位置：</span><label>添加管理员</label></h2>
+			</div>
+			<ul class="optlist">
+				<li class="listopt"><a href="#">管理员列表</a></li>
+			</ul>
+			<div class="opttips">
+				<h3><label>操作说明：</label></h3>
+			</div>
+			<form action="" method="" name="form1" id="addAdmin" >
+				<table border="0" cellspacing="0" class="tbedit">
+					<tr>
+						<th align="right" scope="row">*管理员账号：</th>
+						<td align="left">
+							<input type="hidden" name="aid" type="text" id="aid" value=""/>
+							<input type="text" name="aname" id="aname" class="mtxt" /><span class="errorinfo"
+							 id="">请输入管理员账号</span>
+						</td>
+					</tr>
+					<tr>
+						<th align="right" scope="row">*姓名：</th>
+						<td align="left"> <input type="text" name="owner" id="owner" class="mtxt" /><span class="errorinfo"
+							 id="">请输入姓名</span>
+						</td>
+					</tr>
+					<tr>
+						<th align="right" scope="row">*输入密码：</th>
+						<td align="left"><input type="password" name="apwd" id="apwd" class="mtxt" /><span class="errorinfo"
+							 id="">请输入密码</span>
+						</td>
+					</tr>
+					<tr>
+						<th align="right" scope="row">*密码确认：</th>
+						<td align="left"><input type="password" name="" id="repwd" class="mtxt"/><span
+							 class="errorinfo" id="">两次输入的密码不一致</span>
+						</td>
+					</tr>
+					<tr>
+						<th align="right" scope="row"></th>
+						<td align="left"> 
+							<input name="" type="button" id="toFunction" onclick="addAdmin()" value="添加" class="savebt" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jlm.mapper.NewsMapper">
+
+    <select id="selectNews" resultType="com.jlm.entity.News">
+        select n.*,a.owner
+        from news n
+        left join admin a on a.aid = n.naid
+        <if test="key!=null and key!= ''">
+            <bind name="keyword" value="'%'+key+'%'"/>
+            where ntitle like #{keyword}
+        </if>
+        ORDER BY ndate desc
+    </select>
+</mapper>

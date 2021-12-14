@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>公告--饥了么</title>
+		<link href="css/style.css" rel="stylesheet" type="text/css"/>
+		<script src="js/jquery-3.3.1.min.js">
+		</script>
+		<script>
+			$(function(){
+				/*公共部分
+                 * 导航栏
+                 * footer CopyRight
+                 */
+				$("header").load("header.html");
+				$("footer").load("footer.html");
+			});
+			//可重复利用部分
+			function forEachAdd(result) {
+				for (var i=0;i<result.records.length;i++){
+					var item = result.records[i];
+					var li = $('<li></li>');
+					var dateDiv=$('<div class="date">'+item.ndate.substr(8,9)+'<span>'+item.ndate.substr(0,7)+'</span></div>');
+					var nitem=$('<div class="nitem"></div>');
+					nitem.append($('<h3><a href="News.html?nid='+item.nid+'">'+item.ntitle+'</a></h3>'));
+					nitem.append($('<p>'+item.ndesc+'</p>'));
+					li.append(dateDiv);
+					li.append(nitem);
+					$('#newslist').append(li);
+				}
+				// 分页数据显示
+				$('#page_nav').append(getPageUl(result));
+			}
+			//使用Ajax获取数据
+			var key=$('#keyword').val()
+			$.post('/queryNews', {'key':key}, function (result) {
+				// console.log("result"+result);
+				forEachAdd(result);
+			});
+			//跳转页面的操作
+			function jumpPage(page) {//分页模型数据
+				$.post('/queryNews', {'pn':page,'key':key}, function (result) {
+					$('#newslist').empty(); $('#page_nav').empty();
+					forEachAdd(result);
+				});
+			}
+			//搜索
+			function getSearchRes(){
+				key=$('#keyword').val()
+				$.post('/queryNews', {'key':key}, function (result) {
+					// console.log("result"+result);
+					$('#newslist').empty(); $('#page_nav').empty();
+					forEachAdd(result);
+				});
+			}
+			//定义获取分页节点的函数
+			function getPageUl(result){
+				var ulitem = $('<ul class="pagination"></ul>');
+				ulitem.append($('<li class="page-item"><a class="page-link"\n' +
+						'                                         href="javascript:jumpPage(1)">首页</a></li>'));
+				if(result.pageInfo.hasPreviousPage){
+					ulitem.append($('<li class="page-item"><a class="page-link" href="javascript:jumpPage('+(result.pageInfo.prePage)+')">上一页</a> </li>'));
+				}
+				ulitem.append($('<li className="page-item"><a className="page-link" href="javascript:jumpPage('+result.pageInfo.pageNum+')">'+result.pageInfo.pageNum+'</a>\n' +
+						'            </li>'));
+				if(result.pageInfo.hasNextPage){
+					ulitem.append($('<li class="page-item"><a class="page-link" href="javascript:jumpPage('+(result.pageInfo.nextPage)+')">下一页</a> </li>'));
+				}
+				ulitem.append($('<li className="page-item"><a className="page-link"' +
+						'                                         href="javascript:jumpPage('+result.pageInfo.pages+')">尾页</a>' +
+						'            </li>'));
+				//返回节点
+				return ulitem;
+			}
+		</script>
+	</head>
+	<body>
+		<header>
+
+		</header>
+		<div class="layout">
+			
+			<div class="content">
+				<div class="curpostion">
+					<a href="#">首页</a><span>&gt;</span>公告
+				</div>
+				<ul id="newslist">
+				</ul>
+				<div class="pagenav">
+					<nav aria-label="Page navigation example" id="page_nav"
+						 style="margin-left: 330px;">
+
+					</nav>
+				</div>
+			</div>
+			<div class="sidebar">
+				<div class="WeChat">
+					<h3>官方公众号二维码</h3>
+					<div class="QRcode"  >
+						<img src="img/QRcode.jpg" />
+					</div>
+				</div>
+				<h3 class="Morenews_title">直接搜索</h3>
+				<div id="search">
+					<form action="#" method="get" >
+						<p>
+						<input type="text" name="key"  value="" id="keyword" />
+						<input type="button" onclick="getSearchRes()" name="" value="搜索" class="searchbt" />
+						</p>
+					</form>
+				</div>
+			</div>
+		</div>
+		<footer>
+		</footer>
+	</body>
+</html>

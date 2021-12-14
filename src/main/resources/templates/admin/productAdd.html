@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>主区域</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript" src="js/script.js"></script>
+<script language="javascript" src="js/utils.js"></script>
+<script language="javascript" src="js/validator.js"></script>
+<link href="js/calendar/Calendar.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="js/calendar/jquery.calendar.js" type="text/javascript"></script>
+<script src="ckeditor/ckeditor.js"></script>
+<script>
+    CKEDITOR.env.isCompatible = true;
+</script>
+<script language="javascript" type="text/javascript">
+    $(function () {
+        var url =decodeURI(decodeURI(location.search));
+        var str=url.substr(1);
+        if (str=="update"){
+            var session=sessionStorage.getItem("productJson");
+            var con = JSON.parse(session)
+            // console.log("新页面"+con)
+            $('#pid').val(con.pid)
+            $('#pname').val(con.pname)
+            $('#pprice').val(con.pprice)
+            $('#editor').val(con.pcontent)
+            $('#cinf').remove();
+            $('#toFunction').removeAttr("onclick");
+            $('#toFunction').attr('onclick','updateProduct()')
+        }else {
+            $.post('/category/queryNameId',{},function (result) {
+                for(var i=0;i<result.length;i++){
+                    var item=result[i];
+                    var tr=$("#category");
+                    tr.append("<option value="+item.cid+">"+item.cname+"</option>");
+                }
+            })
+        }
+    })
+function addProduct(){
+    var product = new FormData(document.getElementById("addProduct"));
+    var content = CKEDITOR.instances.editor.getData();
+    product.set("pcontent",content)
+    // console.log(content)
+    $.ajax({
+        url: "/product/add",//后台的接口地址
+        type: "post",//post请求方式
+        data: product,//参数
+        contentType : false,
+        processData : false,
+        success: function (result) {
+            if (result) {
+                alert('添加成功');
+            } else {
+                alert('添加失败');
+            }
+        }, error: function () {
+            alert("操作失败~");
+        }
+    })
+}
+function updateProduct() {
+    var product = new FormData(document.getElementById("addProduct"));
+    var content = CKEDITOR.instances.editor.getData();
+    product.set("pcontent",content)
+    $.ajax({
+        url: "/product/update",//后台的接口地址
+        type: "post",//post请求方式
+        data: product,//参数
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (result.isok == true) {
+                alert('修改成功');
+                location.href="productList.html"
+            } else {
+                alert(result.message);
+            }
+        }, error: function () {
+            alert("操作失败~");
+        }
+    });
+}
+</script>
+</head>
+<body id="frmain">
+	<div id="main">
+	        
+           	<div class="title"><h2><span>当前位置：</span><label>发布信息[新闻中心]</label></h2></div>
+            <ul class="optlist">
+                <li class="listopt"><a href="#">[新闻中心]信息列表</a></li>
+            </ul>
+           <div class="opttips">
+           	<h3><label>操作说明：</label>在“摘要”输入简要描述。</h3>
+           </div>
+           <form action="" method="post" id="addProduct" enctype="multipart/form-data">
+           <table border="0" cellspacing="0" class="tbedit">
+                  <tr>
+                    <th width="280" align="right" scope="row">产品名：</th>
+                    <td align="left">
+                        <input type="hidden" name="pid" type="text" id="pid" value=""/>
+                      <input type="text" name="pname" id="pname" class="longtxt" value="" /><span class="errorinfo" id="">请输入名称</span>
+                    </td>
+                  </tr>
+                   <tr>
+                       <th width="280" align="right" scope="row">价格：</th>
+                       <td align="left">
+                           <input type="text" name="pprice" id="pprice" class="longtxt" value="" /><span class="errorinfo" id="">请输入名称</span>
+                       </td>
+                   </tr>
+                  <tr id="cinf">
+                     <th width="280" align="right" scope="row">店家：</th>
+                    <td align="left">
+                      <select id="category" name="pcid">
+                      </select>
+                    </td>
+                  </tr>
+                   <tr>
+                       <th width="280" align="right" scope="row">*上传图片：</th>
+                       <td align="left">
+                           <input type="file" name="filepart" id=""  mode="require"/><span class="errorinfo" id="">请上传图片</span>
+                       </td>
+                   </tr>
+                  <tr>
+                     <th width="280" align="right" scope="row">*内容：</th>
+                    <td align="left">
+                      <textarea  name="pcontent" id="editor"></textarea>
+                        <script>
+                            CKEDITOR.replace( 'editor' );
+                        </script>
+                    </td>
+                   </tr>
+                  <tr>
+                    <th scope="row">&nbsp;</th>
+                    <td align="left"> 
+                      <input name="" type="button" id="toFunction" onclick="addProduct()" value="添加"  class="savebt"/></td>
+                  </tr>
+                </table>
+	</form>
+	</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jlm.mapper.admin.AdminMapper">
+
+    <select id="selectAdmin" resultType="com.jlm.entity.Admin">
+        select * from admin
+        <if test="key!=null and key!= ''">
+            <bind name="keyword" value="'%'+key+'%'"/>
+            where concat(aid,aname,owner) like #{keyword}
+        </if>
+    </select>
+
+
+</mapper>

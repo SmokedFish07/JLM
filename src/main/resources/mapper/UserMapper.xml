@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jlm.mapper.UserMapper">
+
+    <select id="selectUser" resultType="com.jlm.entity.User">
+        select * from user
+        <if test="key!=null and key!= ''">
+            <bind name="keyword" value="'%'+key+'%'"/>
+            where concat(uid,uname) like #{keyword}
+        </if>
+    </select>
+
+    <update id="toBanned">
+        update user set banned=#{type} where uid=#{id};
+    </update>
+</mapper>

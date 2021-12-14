@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>信息提示</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+</head>
+
+<body id="frmain">
+	<div id="main">
+           	<div class="title"><h2><span>当前位置：</span><label>系统信息提示</label></h2></div>
+          <div class="sysinfo success fail warning">
+          	系统提示的信息
+          </div>
+          <ul class="infolinks">
+          	 <li><a href="#">点击前往</a></li>
+          </ul>
+          <div class="inforeturn">
+         <p id="infotext">自动后退：<span id="spanSeconds">5</span>秒</p>
+          </div>
+	</div>
+    <script language="javascript">
+var url="#";//跳转地址
+var t=setInterval(show,1000);
+var i=5;
+function show(){
+	document.getElementById("infotext").innerHTML="自动后退："+i+"秒";
+	i--;
+	if(i==0){
+		clearInterval(t);
+		location.href=url;
+	}
+}
+</script>
+</body>
+</html>

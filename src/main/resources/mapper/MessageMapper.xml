@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jlm.mapper.MessageMapper">
+
+    <select id="selectByPid" resultType="com.jlm.entity.Message">
+        select m.*,u.uImg,u.uname from message m
+        LEFT JOIN user u on u.uid=m.muid
+        where mpid=#{pid}
+        ORDER BY mdate desc
+    </select>
+</mapper>

@@ -1,0 +1,106 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>主区域</title>
+<link href="css/style.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript" src="js/script.js"></script>
+<script language="javascript" src="js/utils.js"></script>
+<script language="javascript" src="js/validator.js"></script>
+<link href="js/calendar/Calendar.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="js/calendar/jquery.calendar.js" type="text/javascript"></script>
+<script language="javascript" type="text/javascript">
+$(function(){
+$('.txtDate').calendar();
+		   });
+$(function () {
+    var url =decodeURI(decodeURI(location.search));
+    var str=url.substr(1);
+    if(url!=null&&url!=''){
+        var data=str.split(",");
+        $('#cid').val(data[0])
+        $('#cname').val(data[1])
+        $('#toFunction').removeAttr("onclick");
+        $('#toFunction').attr('onclick','updateCategory()')
+    }
+})
+function insertCategory() {
+    var oData = new FormData(document.getElementById("CategoryInf"));
+    $.ajax({
+        url: "/category/add",//后台的接口地址
+        type: "post",//post请求方式
+        data: oData,//参数
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (result.isok == true) {
+                alert('添加成功');
+            } else {
+                alert(result.message);
+            }
+        }, error: function () {
+            alert("操作失败~");
+        }
+    });
+
+}
+function updateCategory() {
+    var oData = new FormData(document.getElementById("CategoryInf"));
+    $.ajax({
+        url: "/category/update",//后台的接口地址
+        type: "post",//post请求方式
+        data: oData,//参数
+        cache: false,
+        processData: false,
+        contentType: false,
+        success: function (result) {
+            if (result.isok == true) {
+                alert('修改成功');
+                location.href="categoryList.html"
+            } else {
+                alert(result.message);
+            }
+        }, error: function () {
+            alert("操作失败~");
+        }
+    });
+}
+</script>
+</head>
+<body id="frmain">
+	<div id="main">
+	        
+           	<div class="title"><h2><span>当前位置：</span><label>发布信息[新闻中心]</label></h2></div>
+            <ul class="optlist">
+                <li class="listopt"><a href="#">[新闻中心]信息列表</a></li>
+            </ul>
+           <div class="opttips">
+           	<h3><label>操作说明：</label>需要上传封面图片（570×320）。在“摘要”输入简要描述。</h3>
+           </div>
+           <form action="" method="post" enctype="multipart/form-data" id="CategoryInf">
+           <table border="0" cellspacing="0" class="tbedit">
+                  <tr>
+                    <th width="280" align="right" scope="row">*标题：</th>
+                    <td align="left">
+                        <input type="hidden" name="cid" type="text" id="cid" value=""/>
+                      <input type="text" name="cname" id="cname" class="longtxt" value="" /><span class="errorinfo" id="">请输入名称</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th width="280" align="right" scope="row">*上传图片：</th>
+                    <td align="left">
+                  <input type="file" name="filepart" id=""  mode="require"/><span class="errorinfo" id="">请上传图片</span>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">&nbsp;</th>
+                    <td align="left"> 
+                      <input name="" id="toFunction" onclick="insertCategory()"  type="button" value="添加"  class="savebt"/></td>
+                  </tr>
+                </table>
+	</form>
+	</div>
+</body>
+</html>

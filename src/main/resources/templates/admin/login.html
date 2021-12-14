@@ -1,0 +1,47 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>登录页面</title>
+<link href="css/login.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="js/jquery.js"></script>
+<script language="javascript" type="text/javascript">
+
+if(window.self.location!=window.top.location)
+{
+	window.top.location=window.self.location;
+}
+function loginAdmin(){
+    var data = $('#loginAdmin').serializeArray();
+    $.post('/admin/loginAdmin',data,function (result){
+        if(result.isok==true){
+            alert('登录成功！');
+            location.href = 'index.html';
+        }else{
+            alert('登录失败！'+result.message);
+        }
+    });
+}
+</script>
+</head>
+
+<body id="loginbody">
+<div id="header"><img src="images/logo.png"  /><span>后台管理</span></div>
+<div id="main">
+<form action="" method="" id="loginAdmin">
+    <div id="login">
+        <div id="login_form">
+                <ul> 
+                <li><p><label class="uidno">账号</label><input type="text" id="uidno" class="txt" name="aname"  placeholder="请输入你的账号" /></p><span class="errorinfo">请输入你的账号！</span> </li>
+                <li><p><label class="upwd">密码</label><input type="password" class="txt" placeholder="密码" name="apwd"  value=""/></p><span class="errorinfo">输入密码有误，请重新输入！</span> </li>
+                <li class="checknoli"><p><input type="text" name="checkno" value="" class="txt" placeholder="验证码"/></p><img src="images/checkno.jpg" class="checkimg"/><span class="errorinfo">输入的验证码有误，请重新输入！</span> </li>
+                <li class="bt"><input type="button" name="" onclick="loginAdmin()" value="登&nbsp;录"/> </li>
+            </ul>
+        </div>
+    </div>
+    </form>
+</div>
+<div id="footer">南华汽车网|今年夏天 版权所有&copy;</div>
+</body>
+</html>
